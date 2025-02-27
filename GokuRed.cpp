@@ -3,7 +3,7 @@
 GokuRed::GokuRed(double scale,QGraphicsItem* parent)
     :CharacterBase(scale,parent)
 {
-    m_attackHurtNum=5;
+    m_attackHurtNum=4;
     m_specialHurtNum=3;
     setupAnimations();
 }
