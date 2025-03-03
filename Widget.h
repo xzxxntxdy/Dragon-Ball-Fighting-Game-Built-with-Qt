@@ -18,19 +18,25 @@
 #include "GokuBlue.h"
 #include "Frieza.h"
 #include "Gokussthree.h"
+#include "CharacterSelection.h"
+#include "Gogetass.h"
+#include "Buu.h"
 
 class Widget : public QWidget
 {
     Q_OBJECT
 
 public:
-    Widget(QWidget *parent = nullptr);
+    explicit Widget(CharacterType heroType=Random, CharacterType enemyType=Random, QWidget *parent = nullptr);
     ~Widget();
+    void updateWidget();
+signals:
+    void returnToMainMenu();
+private:
     void rolemove();
     void enemymove();
-    void updateWidget();
-    QGraphicsScene mscene;
-    QGraphicsView mview;
+    QGraphicsScene m_scene;
+    QGraphicsView m_view;
     QGraphicsPixmapItem *m_background;
     virtual void keyPressEvent(QKeyEvent *event);
     virtual void keyReleaseEvent(QKeyEvent *event);
@@ -58,5 +64,8 @@ public:
     QGraphicsTextItem* m_roundText = nullptr;
     QGraphicsTextItem* m_countdownText = nullptr;
     QTimer* m_roundStartTimer;
+    CharacterType m_heroType;
+    CharacterType m_enemyType;
+    bool m_gameOver = false;
 };
 #endif // WIDGET_H
