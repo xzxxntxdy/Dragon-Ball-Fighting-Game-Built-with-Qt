@@ -148,6 +148,14 @@ bool CharacterBase::isplaying(){
     else return false;
 }
 
+void CharacterBase::setState(AnimationState state){
+    m_currentState=state;
+}
+
+int CharacterBase::getCurrentState() const{
+    return m_currentState;
+}
+
 void CharacterBase::setEnemy(CharacterBase* enemy) {
     m_enemy = enemy;
     connect(m_animations[Attack],&AnimatedPixmapItem::animationUpdated,this,&CharacterBase::checkHit);
@@ -191,7 +199,7 @@ int CharacterBase::health() const
     return m_health;
 }
 
-QRectF CharacterBase::collisionBoundingBox() const {
+QRectF CharacterBase::collisionBoundingBox(){
     QSizeF size = boundingRect().size();
     return QRectF(
         m_transform ? pos().x()-size.width():pos().x(),
