@@ -9,6 +9,10 @@ CharacterSelection::CharacterSelection(QWidget *parent) : QWidget(parent)
     setPalette(palette);
     setAutoFillBackground(true);
 
+    createCharacterButton(BuuType, QPixmap(":/ima/buu/pre/0.png").scaled(size(),
+                                                                         Qt::KeepAspectRatio,
+                                                                         Qt::SmoothTransformation),
+                                                                         QPoint(50, 300));
     createCharacterButton(GokuRedType, QPixmap(":/ima/gokured/pre/0.png").scaled(size(),
                                                                                  Qt::KeepAspectRatio,
                                                                                  Qt::SmoothTransformation),
