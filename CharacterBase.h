@@ -22,7 +22,8 @@ public:
         Special,
         Hurt,
         Dead,
-        Entrance
+        Entrance,
+        Abnormal
     };
 
     explicit CharacterBase(double scale = 1.0,QGraphicsItem* parent = nullptr);
@@ -48,7 +49,7 @@ public:
     bool getTransform();
 
     // 碰撞系统
-    QRectF collisionBoundingBox() const;
+    virtual QRectF collisionBoundingBox();
     virtual QPointF checkCollision(QPointF newPos);
     virtual void cheakHitByAttack();
     virtual void cheakHitByUltimate();
@@ -59,6 +60,8 @@ public:
 
     //状态检测
     bool isplaying();
+    void setState(AnimationState state);
+    int getCurrentState() const;
 
     //血量系统
     int health() const;
