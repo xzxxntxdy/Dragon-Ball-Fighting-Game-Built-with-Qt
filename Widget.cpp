@@ -1,22 +1,22 @@
 #include "Widget.h"
 
-Widget::Widget(QWidget *parent)
-    : QWidget(parent)
+Widget::Widget(CharacterType heroType, CharacterType enemyType, QWidget *parent)
+    : QWidget(parent),m_heroType(heroType), m_enemyType(enemyType)
 {
     srand(time(NULL));
     this->setFixedSize(1770,1024);
-    mscene.setSceneRect(0,0,1770,1024);
-    mview.setScene(&mscene);
-    mview.setParent(this);
-    mview.setFocusPolicy(Qt::NoFocus);
+    m_scene.setSceneRect(0,0,1770,1024);
+    m_view.setScene(&m_scene);
+    m_view.setParent(this);
+    m_view.setFocusPolicy(Qt::NoFocus);
     auto pixmap=QPixmap(":/ima/background.png");
     pixmap = pixmap.scaled(pixmap.size() * 2,
                          Qt::KeepAspectRatio,
                          Qt::SmoothTransformation);
     m_background = new QGraphicsPixmapItem(pixmap);
-    mscene.addItem(m_background);
+    m_scene.addItem(m_background);
     // 创建血条
-    m_heroHealth = new ValueBar(&mscene,
+    m_heroHealth = new ValueBar(&m_scene,
         QPointF(20, 20),
         Qt::red,
         "HERO",
@@ -24,23 +24,23 @@ Widget::Widget(QWidget *parent)
         100,
         100);
 
-    m_enemyHealth = new ValueBar(&mscene,
-        QPointF(mscene.width() - 320, 20),
+    m_enemyHealth = new ValueBar(&m_scene,
+        QPointF(m_scene.width() - 320, 20),
         QColor(0, 100, 255),
         "ENEMY",
         true,
         100,
         100);
     //创建精力条
-    m_heroEnergy = new ValueBar(&mscene,
+    m_heroEnergy = new ValueBar(&m_scene,
         QPointF(20, 50),
         Qt::green,
         "HERO",
         false,
         50,
         0);
-    m_enemyEnergy = new ValueBar(&mscene,
-        QPointF(mscene.width() - 170, 50),
+    m_enemyEnergy = new ValueBar(&m_scene,
+        QPointF(m_scene.width() - 170, 50),
         Qt::green,
         "ENEMY",
         false,
@@ -55,11 +55,14 @@ Widget::Widget(QWidget *parent)
     m_roundStartTimer->setSingleShot(true);
     connect(m_roundStartTimer, &QTimer::timeout, this, &Widget::showCountDown);
     connect(m_roundStartTimer, &QTimer::timeout,this,[=](){
-        mscene.removeItem(m_roundText);
+        m_scene.removeItem(m_roundText);
         delete m_roundText;
     });
 }
 void Widget::keyPressEvent(QKeyEvent *event){
+    if(m_gameOver && event->key() == Qt::Key_Return) {
+        emit returnToMainMenu();
+    }
     switch(event->key()) {
         case Qt::Key_J:
         case Qt::Key_L:
@@ -105,30 +108,6 @@ void Widget::keyReleaseEvent(QKeyEvent *event){
 void Widget::rolemove(){
     static int flag;
     if (!m_roundActive) return;
-    if(hero->isplaying()) return;
-    if(m_keyList.contains(Qt::Key_H)){
-        hero->setMovement(QPointF(0,0));
-        hero->playCharge();
-        flag=1;
-    }else{
-        flag=0;
-    }
-    if(m_keyList.contains(Qt::Key_J)){
-        hero->setMovement(QPointF(0,0));
-        hero->playAttack();
-        return;
-    }
-    if(m_keyList.contains(Qt::Key_L)){
-        hero->setMovement(QPointF(0,0));
-        hero->playUltimate();
-        return;
-    }
-    if(m_keyList.contains(Qt::Key_I)){
-        hero->setMovement(QPointF(0,0));
-        hero->playSpecial();
-        return;
-    }
-    if(flag) return;
     hero->setMovement(QPointF(0,0));
     double move;
     if(m_keyList.size()==1||(m_keyList.size()==2&&m_keyList.contains(Qt::Key_K))){
@@ -136,6 +115,39 @@ void Widget::rolemove(){
     }else{
         move=3.5;
     }
+    if(hero->getCurrentState()==CharacterBase::Abnormal){
+        QPointF dir(0,0);
+        for(int keyCode:m_keyList){
+            switch (keyCode) {
+            case Qt::Key_W:dir=dir+QPointF(0,-move/1.5);break;
+            case Qt::Key_A:dir=dir+QPointF(-move,0);break;
+            case Qt::Key_S:dir=dir+QPointF(0,move/1.5);break;
+            case Qt::Key_D:dir=dir+QPointF(move,0);break;
+            }
+        }
+        hero->moveBy(dir.x(),dir.y());
+        return;
+    }
+    if(hero->isplaying()) return;
+    if(m_keyList.contains(Qt::Key_H)){
+        hero->playCharge();
+        flag=1;
+    }else{
+        flag=0;
+    }
+    if(m_keyList.contains(Qt::Key_J)){
+        hero->playAttack();
+        return;
+    }
+    if(m_keyList.contains(Qt::Key_L)){
+        hero->playUltimate();
+        return;
+    }
+    if(m_keyList.contains(Qt::Key_I)){
+        hero->playSpecial();
+        return;
+    }
+    if(flag) return;
     for(int keyCode:m_keyList){
         switch (keyCode) {
         case Qt::Key_W:hero->setMovement(hero->getDirection()+QPointF(0,-move/1.5));break;
@@ -155,30 +167,6 @@ void Widget::rolemove(){
 void Widget::enemymove(){
     static int flag;
     if (!m_roundActive) return;
-    if(enemy->isplaying()) return;
-    if(m_enemyKeyList.contains(Qt::Key_5)){
-        enemy->setMovement(QPointF(0,0));
-        enemy->playCharge();
-        flag=1;
-    }else{
-        flag=0;
-    }
-    if(m_enemyKeyList.contains(Qt::Key_1)){
-        enemy->setMovement(QPointF(0,0));
-        enemy->playAttack();
-        return;
-    }
-    if(m_enemyKeyList.contains(Qt::Key_3)){
-        enemy->setMovement(QPointF(0,0));
-        enemy->playUltimate();
-        return;
-    }
-    if(m_enemyKeyList.contains(Qt::Key_4)){
-        enemy->setMovement(QPointF(0,0));
-        enemy->playSpecial();
-        return;
-    }
-    if(flag) return;
     enemy->setMovement(QPointF(0,0));
     double move;
     if(m_enemyKeyList.size()==1||(m_enemyKeyList.size()==2&&m_enemyKeyList.contains(Qt::Key_2))){
@@ -186,6 +174,39 @@ void Widget::enemymove(){
     }else{
         move=3.5;
     }
+    if(enemy->getCurrentState()==CharacterBase::Abnormal){
+        QPointF dir(0,0);
+        for(int keyCode:m_enemyKeyList){
+            switch (keyCode) {
+            case Qt::Key_Up:dir=dir+QPointF(0,-move/1.5);break;
+            case Qt::Key_Left:dir=dir+QPointF(-move,0);break;
+            case Qt::Key_Down:dir=dir+QPointF(0,move/1.5);break;
+            case Qt::Key_Right:dir=dir+QPointF(move,0);break;
+            }
+        }
+        enemy->moveBy(dir.x(),dir.y());
+        return;
+    }
+    if(enemy->isplaying()) return;
+    if(m_enemyKeyList.contains(Qt::Key_5)){
+        enemy->playCharge();
+        flag=1;
+    }else{
+        flag=0;
+    }
+    if(m_enemyKeyList.contains(Qt::Key_1)){
+        enemy->playAttack();
+        return;
+    }
+    if(m_enemyKeyList.contains(Qt::Key_3)){
+        enemy->playUltimate();
+        return;
+    }
+    if(m_enemyKeyList.contains(Qt::Key_4)){
+        enemy->playSpecial();
+        return;
+    }
+    if(flag) return;
     for(int keyCode:m_enemyKeyList){
         switch (keyCode) {
         case Qt::Key_Up:enemy->setMovement(enemy->getDirection()+QPointF(0,-move/1.5));break;
@@ -203,12 +224,22 @@ void Widget::enemymove(){
 }
 
 void Widget::updateWidget(){
-    int H=rand()%4;
-    int E=rand()%4;
+    CharacterType H;
+    if(m_heroType==Random){
+        H=CharacterType(rand()%6);
+    }else{
+        H=m_heroType;
+    }
+    CharacterType E;
+    if(m_enemyType==Random){
+        E=CharacterType(rand()%6);
+    }else{
+        E=m_enemyType;
+    }
     m_roundActive = false;
     // 创建角色
     switch (H) {
-    case 0:
+    case GokuRedType:
         hero = new GokuRed(2.0);
         connect(hero, &GokuRed::change ,this,[=](){
             int health=hero->health();
@@ -222,7 +253,7 @@ void Widget::updateWidget(){
             connect(hero, &CharacterBase::roundEnded, this, &Widget::checkRoundWinner);
             hero->setHealth(health+50);
             hero->setEnergy(energy);
-            mscene.addItem(hero);
+            m_scene.addItem(hero);
             hero->setPos(pos);
             hero->setEnemy(enemy);
             enemy->setEnemy(hero);
@@ -231,18 +262,24 @@ void Widget::updateWidget(){
             hero->backIdle();
         });
         break;
-    case 1:
+    case GokuBlueType:
         hero = new GokuBlue(2.0);
         break;
-    case 2:
+    case FriezaType:
         hero = new Frieza(2.0);
         break;
-    default:
+    case GokussthreeType:
         hero = new Gokussthree(2.0);
+        break;
+    case BuuType:
+        hero = new Buu(2.0);
+        break;
+    default:
+        hero = new Gogetass(2.0);
         break;
     }
     switch (E) {
-    case 0:
+    case GokuRedType:
         enemy = new GokuRed(2.0);
         connect(enemy, &GokuRed::change ,this,[=](){
             int health=enemy->health();
@@ -256,7 +293,7 @@ void Widget::updateWidget(){
             connect(enemy, &CharacterBase::roundEnded, this, &Widget::checkRoundWinner);
             enemy->setHealth(health+50);
             enemy->setEnergy(energy);
-            mscene.addItem(enemy);
+            m_scene.addItem(enemy);
             enemy->setPos(pos);
             hero->setEnemy(enemy);
             enemy->setEnemy(hero);
@@ -265,19 +302,25 @@ void Widget::updateWidget(){
             enemy->backIdle();
         });
         break;
-    case 1:
+    case GokuBlueType:
         enemy = new GokuBlue(2.0);
         break;
-    case 2:
+    case FriezaType:
         enemy = new Frieza(2.0);
         break;
-    default:
+    case GokussthreeType:
         enemy = new Gokussthree(2.0);
+        break;
+    case BuuType:
+        enemy = new Buu(2.0);
+        break;
+    default:
+        enemy = new Gogetass(2.0);
         break;
     }
     hero->setPos(200,300);
-    mscene.addItem(enemy);
-    mscene.addItem(hero);
+    m_scene.addItem(enemy);
+    m_scene.addItem(hero);
     enemy->setPos(1550,300);
     hero->setEnemy(enemy);
     enemy->setEnemy(hero);
@@ -312,16 +355,16 @@ void Widget::showRoundNumber() {
     m_roundText->setFont(font);
     m_roundText->setDefaultTextColor(Qt::white);
     QRectF textRect = m_roundText->boundingRect();
-    m_roundText->setPos(mscene.width()/2 - textRect.width()/2,
-                       mscene.height()/2 - textRect.height()/2);
-    mscene.addItem(m_roundText);
+    m_roundText->setPos(m_scene.width()/2 - textRect.width()/2,
+                       m_scene.height()/2 - textRect.height()/2);
+    m_scene.addItem(m_roundText);
 
     m_roundStartTimer->start(1500);
 }
 
 void Widget::showCountDown() {
     if (m_countdownText) {
-        mscene.removeItem(m_countdownText);
+        m_scene.removeItem(m_countdownText);
         delete m_countdownText;
     }
 
@@ -331,15 +374,15 @@ void Widget::showCountDown() {
     m_countdownText->setFont(font);
     m_countdownText->setDefaultTextColor(Qt::red);
     QRectF textRect = m_countdownText->boundingRect();
-    m_countdownText->setPos(mscene.width()/2 - textRect.width()/2,
-                           mscene.height()/2 - textRect.height()/2);
-    mscene.addItem(m_countdownText);
+    m_countdownText->setPos(m_scene.width()/2 - textRect.width()/2,
+                           m_scene.height()/2 - textRect.height()/2);
+    m_scene.addItem(m_countdownText);
 
     if (count > 0) {
         QTimer::singleShot(1000, this, &Widget::showCountDown);
         count--;
     } else {
-        mscene.removeItem(m_countdownText);
+        m_scene.removeItem(m_countdownText);
         delete m_countdownText;
         m_countdownText = nullptr;
         count = 3;
@@ -393,9 +436,14 @@ void Widget::showFinalWinner() {
     winText->setFont(font);
     winText->setDefaultTextColor(Qt::yellow);
     QRectF textRect = winText->boundingRect();
-    winText->setPos(mscene.width()/2 - textRect.width()/2,
-                   mscene.height()/2 - textRect.height()/2);
-    mscene.addItem(winText);
+    winText->setPos(m_scene.width()/2 - textRect.width()/2,
+                   m_scene.height()/2 - textRect.height()/2);
+    m_scene.addItem(winText);
+    QGraphicsTextItem* hint = new QGraphicsTextItem("Press Enter to Return to Menu");
+    hint->setPos(m_scene.width()/2 - 200, m_scene.height()/2 + 100);
+    m_scene.addItem(hint);
+    hint->setDefaultTextColor(Qt::white);
+    m_gameOver=true;
 }
 
 Widget::~Widget()
