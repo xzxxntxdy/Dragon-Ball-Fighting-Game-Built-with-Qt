@@ -135,7 +135,6 @@ void Gokussthree::setupAnimations(){
     m_animations[Special]->setFrameCollision(5, QRectF(0, -100, 350, 200));
     m_animations[Special]->setPerFrameMovement(5,QPointF(0,-130));
     m_animations[Special]->setPerFrameMovement(6,QPointF(0,150));
-    m_animations[Special]->setFrameDuration(2,300);
     m_animations[Special]->setFrameDuration(5,1000);
     connect(m_animations[Special], &AnimatedPixmapItem::animationStopped,this,&CharacterBase::backIdle);
 
@@ -187,8 +186,8 @@ void Gokussthree::playSpecial(){
     setZValue(1);
     m_enemy->setZValue(2);
     m_animations[Special]->setPerFramePos(4,
-                                           QPointF((m_transform ? m_enemy->collisionBoundingBox().right()+140+m_enemy->getDirection().x()*60
-                                                   : m_enemy->collisionBoundingBox().left()-140+m_enemy->getDirection().x()*60),
+                                           QPointF((m_transform ? m_enemy->collisionBoundingBox().right()+140+m_enemy->getDirection().x()*40
+                                                   : m_enemy->collisionBoundingBox().left()-140+m_enemy->getDirection().x()*40),
                                                    pos().y()));
     CharacterBase::playSpecial();
 }
