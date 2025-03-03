@@ -15,6 +15,7 @@ enum CharacterType {
     FriezaType,
     GokussthreeType,
     GogetassType,
+    BuuType,
     Random
 };
 
