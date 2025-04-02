@@ -45,6 +45,9 @@ void AnimatedPixmapItem::setSegmentLoop(int startFrame, int endFrame, int loopCo
     }
 }
 
+void AnimatedPixmapItem::setSegmentMove(bool isApplySegmentMove){
+    m_isApplySegmentMove=isApplySegmentMove;
+}
 
 void AnimatedPixmapItem::startAnimation()
 {
@@ -121,8 +124,12 @@ void AnimatedPixmapItem::updateFrame()
     // 更新显示和其他处理
     m_countFrame++;
     updatePixmap();
-    if(!m_isInSegmentLoop||(m_isInSegmentLoop && m_segmentCurrentLoop == m_segmentLoopCount)){
+    if(m_isApplySegmentMove){
         applyFrameMovement();
+    }else{
+        if(!m_isInSegmentLoop||(m_isInSegmentLoop && m_segmentCurrentLoop == m_segmentLoopCount)){
+            applyFrameMovement();
+        }
     }
 
     // 更新定时器间隔
@@ -182,6 +189,14 @@ void AnimatedPixmapItem::setLooping(bool loop){
 
 void AnimatedPixmapItem::setFrameRate(int fps){
     m_defaultFrameDuration=1000/fps;
+}
+
+void AnimatedPixmapItem::setCenter(){
+    for(int i=1;i<m_frames.size();i++){
+        QSize size_now=m_frames[i].size();
+        QSize size_past=m_frames[i-1].size();
+        setPerFrameMovement(i,QPointF(size_past.width()-size_now.width(),(size_past.height()-size_now.height())*2));
+    }
 }
 
 void AnimatedPixmapItem::setScaleFactor(double scaleFactor){

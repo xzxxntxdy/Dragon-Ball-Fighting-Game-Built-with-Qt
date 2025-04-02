@@ -21,6 +21,10 @@ MainMenu::MainMenu(QWidget *parent) : QWidget(parent)
 
     connect(randomBtn, &QPushButton::clicked, this, &MainMenu::randomBattleSelected);
     connect(selectBtn, &QPushButton::clicked, this, &MainMenu::characterSelectSelected);
+
+    bgm=new SoundEffect(this);
+    bgm->load("qrc:/sound/sound/bgm1.wav");
+    bgm->setLoop(true);
 }
 
 QPushButton* MainMenu::createMenuButton(const QString& text)
@@ -37,4 +41,12 @@ QPushButton* MainMenu::createMenuButton(const QString& text)
         "}"
     );
     return btn;
+}
+
+void MainMenu::stopBgm(){
+    bgm->stop();
+}
+
+void MainMenu::playBgm(){
+    bgm->play();
 }

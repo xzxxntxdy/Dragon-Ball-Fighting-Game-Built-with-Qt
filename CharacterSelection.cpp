@@ -47,6 +47,11 @@ CharacterSelection::CharacterSelection(QWidget *parent) : QWidget(parent)
         "}"
     );
     connect(resetbutton,&QPushButton::clicked,this,&CharacterSelection::resetSelection);
+
+    bgm=new SoundEffect(this);
+    bgm->load("qrc:/sound/sound/bgm2.wav");
+    bgm->setLoop(true);
+    bgm->setVolume(70);
 }
 
 void CharacterSelection::createCharacterButton(CharacterType type, const QPixmap& image, const QPoint& pos)
@@ -99,4 +104,12 @@ void CharacterSelection::resetSelection()
         btn->setProperty("selectedCount", 0);
         updateButtonAppearance(btn, 0);
     }
+}
+
+void CharacterSelection::stopBgm(){
+    bgm->stop();
+}
+
+void CharacterSelection::playBgm(){
+    bgm->play();
 }

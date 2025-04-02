@@ -8,6 +8,7 @@
 #include <QPushButton>
 #include <QToolButton>
 #include <QVariant>
+#include "SoundEffect.h"
 
 enum CharacterType {
     GokuRedType,
@@ -25,6 +26,8 @@ class CharacterSelection : public QWidget
 public:
     explicit CharacterSelection(QWidget *parent = nullptr);
     void resetSelection();
+    void stopBgm();
+    void playBgm();
 
 signals:
     void charactersSelected(CharacterType p1, CharacterType p2);
@@ -36,6 +39,7 @@ private:
     void createCharacterButton(CharacterType type, const QPixmap& image, const QPoint& pos);
     void updateSelection();
     void updateButtonAppearance(QToolButton* btn, int count);
+    SoundEffect* bgm;
 };
 
 #endif // CHARACTERSELECTION_H

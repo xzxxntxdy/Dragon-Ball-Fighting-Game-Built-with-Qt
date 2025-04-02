@@ -7,6 +7,18 @@ CharacterBase::CharacterBase(double scale, QGraphicsItem* parent)
     setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
     initEnergySystem();
     initComboSystem();
+    setSoundEffect();
+}
+
+void CharacterBase::setSoundEffect(){
+    m_soundEffect[Charge]=new SoundEffect(this);
+    m_soundEffect[Charge]->load("qrc:/sound/sound/charge.wav");
+    m_soundEffect[Charge]->setLoop(true);
+    m_soundEffect[Charge]->setVolume(30);
+    m_soundEffect[Move]=new SoundEffect(this);
+    m_soundEffect[Move]->load("qrc:/sound/sound/move.wav");
+    m_soundEffect[Move]->setPlaybackSpeed(1.5);
+    m_soundEffect[Move]->setVolume(40);
 }
 
 void CharacterBase::initEnergySystem(){
@@ -29,10 +41,16 @@ void CharacterBase::switchAnimation(AnimationState newState)
     // 停止当前动画
     if (m_currentState!=Idle&&m_animations.contains(m_currentState)) {
         m_animations[m_currentState]->stopAnimation();
+        if(m_soundEffect.contains(m_currentState)){
+            m_soundEffect[m_currentState]->stop();
+        }
     }
 
     // 启动新动画
     m_currentState = newState;
+    if(m_soundEffect.contains(m_currentState)){
+        m_soundEffect[m_currentState]->play();
+    }
     m_animations[newState]->startAnimation();
 }
 
@@ -116,6 +134,9 @@ void CharacterBase::stopAll()
 {
     foreach (auto anim, m_animations) {
         anim->stopAnimation();
+    }
+    foreach (auto sound, m_soundEffect) {
+        sound->stop();
     }
     backIdle();
 }

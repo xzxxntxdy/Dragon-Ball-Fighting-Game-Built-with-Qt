@@ -8,6 +8,7 @@
 #include <QGraphicsScene>
 #include <QtMath>
 #include "Bullet.h"
+#include "SoundEffect.h"
 
 class CharacterBase : public QObject,public QGraphicsPixmapItem
 {
@@ -42,6 +43,10 @@ public:
     void playSlowMove();
     void stopAll();
     void switchAnimation(AnimationState newState);
+
+    //音效
+    QMap<AnimationState, SoundEffect*> m_soundEffect;
+    void setSoundEffect();
 
     // 位置控制
     void setMovement(const QPointF& direction);

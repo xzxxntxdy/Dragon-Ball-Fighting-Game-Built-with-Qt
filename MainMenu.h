@@ -5,12 +5,15 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QPainter>
+#include "SoundEffect.h"
 
 class MainMenu : public QWidget
 {
     Q_OBJECT
 public:
     explicit MainMenu(QWidget *parent = nullptr);
+    void stopBgm();
+    void playBgm();
 
 signals:
     void randomBattleSelected();
@@ -18,6 +21,7 @@ signals:
 
 private:
     QPushButton* createMenuButton(const QString& text);
+    SoundEffect* bgm;
 };
 
 #endif // MAINMENU_H

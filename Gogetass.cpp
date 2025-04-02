@@ -165,8 +165,10 @@ void Gogetass::playSpecial(){
     }else{
         consumeEnergy(10);
     }
-    setZValue(1);
-    m_enemy->setZValue(2);
+    if(m_enemy->getCurrentState()!=Ultimate){
+        setZValue(1);
+        m_enemy->setZValue(2);
+    }
     CharacterBase::playSpecial();
 }
 

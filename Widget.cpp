@@ -58,9 +58,20 @@ Widget::Widget(CharacterType heroType, CharacterType enemyType, QWidget *parent)
         m_scene.removeItem(m_roundText);
         delete m_roundText;
     });
+
+    bgm=new SoundEffect(this);
+    bgm->load("qrc:/sound/sound/bgm3.wav");
+    bgm->setLoop(true);
+    bgm->play();
 }
 void Widget::keyPressEvent(QKeyEvent *event){
     if(m_gameOver && event->key() == Qt::Key_Return) {
+        emit returnToMainMenu();
+    }
+    if(event->key() == Qt::Key_Escape){
+        m_roundActive = false;
+        hero->stopAll();
+        enemy->stopAll();
         emit returnToMainMenu();
     }
     switch(event->key()) {

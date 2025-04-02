@@ -42,7 +42,9 @@ public:
     void setSegmentLoop(int startFrame, int endFrame, int loopCount);
     void transform(bool isTransform);
     int getCurrentFrame();
+    void setCenter();
     QRectF currentCollisionRect() const;
+    void setSegmentMove(bool isApplySegmentMove);
 
 signals:
     void animationStopped();
@@ -81,6 +83,7 @@ private:
     int m_segmentCurrentLoop = 0;       // 当前剩余循环次数
     bool m_isInSegmentLoop = false;     // 是否处于片段循环中
     int m_facing=1;                       //朝右？1：-1
+    bool m_isApplySegmentMove = false;   //是否起用片段循环移动
 };
 
 #endif // ANIMATEDPIXMAPITEM_H

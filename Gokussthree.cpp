@@ -76,7 +76,6 @@ void Gokussthree::setupAnimations(){
     m_animations[Ultimate]->setFrameCollision(6, QRectF(40, 20, 150, 70));
     m_animations[Ultimate]->setFrameCollision(10, QRectF(40, 20, 150, 70));
     m_animations[Ultimate]->setFrameCollision(17, QRectF(0, -100, 1000, 300));
-    m_animations[Ultimate]->setSegmentLoop(1,2,2);
     m_animations[Ultimate]->setFrameDuration(4,75);
     m_animations[Ultimate]->setFrameDuration(5,75);
     m_animations[Ultimate]->setFrameDuration(7,500);
@@ -88,6 +87,9 @@ void Gokussthree::setupAnimations(){
     m_animations[Ultimate]->setPerFrameMovement(17,QPointF(0,-80));
     m_animations[Ultimate]->setPerFrameMovement(18,QPointF(0,80));
     connect(m_animations[Ultimate],&AnimatedPixmapItem::animationUpdated,this,[this](){
+        int frame=m_animations[Ultimate]->getCurrentFrame();
+        if(frame==4||frame==9||frame==13)
+            setMovement(QPointF(m_enemy->getTransform()?-1:1,0));
         m_animations[Ultimate]->setPerFramePos(4,
                                                QPointF((m_transform ? m_enemy->collisionBoundingBox().right()+80
                                                        : m_enemy->collisionBoundingBox().left()-80),
@@ -136,7 +138,14 @@ void Gokussthree::setupAnimations(){
     m_animations[Special]->setPerFrameMovement(5,QPointF(0,-130));
     m_animations[Special]->setPerFrameMovement(6,QPointF(0,150));
     m_animations[Special]->setFrameDuration(5,1000);
+    m_animations[Special]->setFrameDuration(2,500);
     connect(m_animations[Special], &AnimatedPixmapItem::animationStopped,this,&CharacterBase::backIdle);
+    connect(m_animations[Special],&AnimatedPixmapItem::animationUpdated,this,[this](){
+        m_animations[Special]->setPerFramePos(4,
+                                               QPointF((m_transform ? m_enemy->collisionBoundingBox().right()+140
+                                                       : m_enemy->collisionBoundingBox().left()-140),
+                                                       pos().y()));
+    });
 
     //entrance动画
     m_animations[Entrance] = new AnimatedPixmapItem(
@@ -185,10 +194,6 @@ void Gokussthree::playSpecial(){
     }
     setZValue(1);
     m_enemy->setZValue(2);
-    m_animations[Special]->setPerFramePos(4,
-                                           QPointF((m_transform ? m_enemy->collisionBoundingBox().right()+140+m_enemy->getDirection().x()*40
-                                                   : m_enemy->collisionBoundingBox().left()-140+m_enemy->getDirection().x()*40),
-                                                   pos().y()));
     CharacterBase::playSpecial();
 }
 
@@ -227,4 +232,16 @@ void Gokussthree::cheakHitBySpecial(){
             emit Hit(m_specialDamage);
         }
     }
+}
+
+void Gokussthree::playUltimate(){
+    if(m_energy>=30){
+        m_animations[Ultimate]->setSegmentLoop(3,11,(m_energy-20)/10+1);
+        consumeEnergy((m_energy-20)/10*10);
+        m_animations[Ultimate]->setSegmentMove(true);
+    }else{
+        m_animations[Ultimate]->setSegmentLoop(1,2,2);
+        m_animations[Ultimate]->setSegmentMove(false);
+    }
+    CharacterBase::playUltimate();
 }

@@ -21,6 +21,7 @@
 #include "CharacterSelection.h"
 #include "Gogetass.h"
 #include "Buu.h"
+#include "SoundEffect.h"
 
 class Widget : public QWidget
 {
@@ -67,5 +68,6 @@ private:
     CharacterType m_heroType;
     CharacterType m_enemyType;
     bool m_gameOver = false;
+    SoundEffect* bgm;
 };
 #endif // WIDGET_H

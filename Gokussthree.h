@@ -13,5 +13,6 @@ public:
     void setupAnimations();
     void playMove() override;
     void playSpecial() override;
+    void playUltimate() override;
 };
 #endif // GOKUSSTHREE_H
